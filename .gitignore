@@ -1,0 +1,37 @@
+Python virtual environment
+
+This folder contains libraries and is system-specific
+
+/mvenv/
+mvenv/
+
+Python cache files
+
+pycache/
+*.pyc
+
+Large library files (just in case)
+
+*.dll
+*.pyd
+
+Trained model & processed data
+
+These are large binary files that don't need to be in version control
+
+model.p
+data.pickle
+
+Raw image data
+
+The /data folder can contain thousands of images
+
+data/
+
+Secret files
+
+DO NOT commit your real Wi-Fi credentials to GitHub!
+
+The 'ESP01_Wifi_Server_TEMPLATE.ino' is the public version.
+
+ESP01_Wifi_Server.ino
