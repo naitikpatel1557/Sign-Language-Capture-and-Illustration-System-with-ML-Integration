@@ -40,7 +40,7 @@ print(f"Filtered dataset size: {len(labels_filtered)}")
 
 # Now, use the FILTERED data for splitting
 x_train, x_test, y_train, y_test = train_test_split(data_filtered, labels_filtered, 
-                                                    test_size=0.3, 
+                                                    test_size=0.5, 
                                                     shuffle=True, 
                                                     stratify=labels_filtered) # Use filtered labels for stratify
 

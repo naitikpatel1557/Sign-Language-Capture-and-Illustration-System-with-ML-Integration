@@ -10,6 +10,7 @@ NUM_IMAGES_TO_COLLECT = 50 # You can change this
 # Get gesture name from user
 gesture_name = input("Enter gesture name (e.g., 'A', 'B', 'L'): ")
 
+
 # Create the directory for the new gesture if it doesn't exist
 gesture_path = os.path.join(DATA_DIR, gesture_name)
 if not os.path.exists(gesture_path):

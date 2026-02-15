@@ -1,4 +1,5 @@
 #! C:\Users\Asus\Python\mvenv\Scripts\python.exe
+
 import pickle
 import cv2
 import mediapipe as mp
@@ -116,6 +117,7 @@ while True:
     cv2.imshow('frame', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
 
 # Cleanup
 cap.release()
