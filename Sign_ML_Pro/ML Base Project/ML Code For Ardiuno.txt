@@ -1,0 +1,146 @@
+/*
+  Sensor Glove Project - Converted to PYTHON CONTROL
+  
+  Receives gesture data (single chars) from a Python script
+  via Serial communication.
+  
+  Controls:
+  - 1x I2C OLED Display (SSD1306)
+  - 4x LEDs
+  - 1x Buzzer
+  
+  Expected Chars from Python:
+  'A' -> Gesture A (1 Finger)
+  'B' -> Gesture B (4 Fingers)
+  'L' -> Gesture L (2 Fingers)
+  'N' -> No gesture / Clear (0 Fingers)
+*/
+
+// --- Include Libraries ---
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+// --- Setup the OLED ---
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+// --- Define Output Pins ---
+#define LED_1_PIN 2
+#define LED_2_PIN 3
+#define LED_3_PIN 4
+#define LED_4_PIN 5
+#define BUZZER_PIN 6
+
+// A variable to keep track of the last message to prevent flickering
+String lastGesture = "";
+
+void setup() {
+  // Start serial for communication with Python
+  Serial.begin(9600);
+
+  // --- Initialize all OUTPUT pins ---
+  pinMode(LED_1_PIN, OUTPUT);
+  pinMode(LED_2_PIN, OUTPUT);
+  pinMode(LED_3_PIN, OUTPUT);
+  pinMode(LED_4_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  // --- Initialize the OLED ---
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for (;;); // Loop forever
+  }
+
+  // --- Show initial message on OLED ---
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.println(F("Glove"));
+  display.println(F("Ready..."));
+  display.display();
+  
+  delay(1000);
+}
+
+void loop() {
+  String currentGesture = lastGesture;
+  
+  // Check if Python has sent any data
+  if (Serial.available() > 0) {
+    // Read the incoming character
+    char receivedChar = Serial.read();
+
+    // --- GESTURE RECOGNITION LOGIC (from Python) ---
+    
+    // Check for 'A' (Assuming 1 finger)
+    if (receivedChar == 'A') {
+      currentGesture = "Gesture A"; // You can change this text
+      Serial.println("PYTHON SENT: A");
+      
+      setLEDs(1); 
+      noTone(BUZZER_PIN);
+    }
+    // Check for 'B' (Assuming 4 fingers)
+    else if (receivedChar == 'B') {
+      currentGesture = "Gesture B"; // You can change this text
+      Serial.println("PYTHON SENT: B");
+      
+      setLEDs(4); 
+      noTone(BUZZER_PIN);
+    }
+    // Check for 'L' (Assuming 2 fingers)
+    else if (receivedChar == 'L') {
+      currentGesture = "Gesture L"; // You can change this text
+      Serial.println("PYTHON SENT: L");
+      
+      setLEDs(2); 
+      tone(BUZZER_PIN, 1000, 150); // Beep for L
+    }
+    // Check for 'N' (No gesture / 0 fingers)
+    else if (receivedChar == 'N') {
+      currentGesture = ""; // Blank screen
+      Serial.println("PYTHON SENT: No Gesture");
+      
+      setLEDs(0); 
+      noTone(BUZZER_PIN);
+    }
+    // --- NEW: Catch-all for unknown gestures ---
+    // If Python sends a char we don't recognize (e.g. 'C', 'D', etc.)
+    // treat it as "No Gesture" and turn off LEDs.
+    else {
+      currentGesture = "Unknown"; // Or "" for blank screen
+      Serial.print("PYTHON SENT: Unknown char ");
+      Serial.println(receivedChar);
+      
+      setLEDs(0); 
+      noTone(BUZZER_PIN);
+    }
+  }
+
+  // 4. Update the OLED Display
+  // Only update the screen if the message has changed
+  if (currentGesture != lastGesture) {
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.setCursor(0, 0);
+    display.print(currentGesture);
+    display.display();
+    
+    lastGesture = currentGesture; // Remember what we just printed
+  }
+  
+  delay(50); // Wait a short time
+}
+
+// --- NEW HELPER FUNCTION ---
+// Lights up 'count' number of LEDs
+void setLEDs(int count) {
+  digitalWrite(LED_1_PIN, (count > 0) ? HIGH : LOW);
+  digitalWrite(LED_2_PIN, (count > 1) ? HIGH : LOW);
+  digitalWrite(LED_3_PIN, (count > 2) ? HIGH : LOW);
+  digitalWrite(LED_4_PIN, (count > 3) ? HIGH : LOW);
+}
